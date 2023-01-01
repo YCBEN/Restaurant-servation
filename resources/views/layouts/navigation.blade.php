@@ -1,3 +1,4 @@
+
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,6 +16,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @if (Auth::user()->is_admin)
+                    <x-nav-link :href="route('admin.index')" :active="request()->routeIs('dashboard')">
+                        {{ __('Administration') }}
+                    </x-nav-link>
+                    @endif
+                    
                 </div>
             </div>
 
