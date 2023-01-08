@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+
 
 class CategoryController extends Controller
 {
@@ -75,9 +77,9 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Category $category)
     {
-        //
+        return view('admin.categories.edit',compact('category'));
     }
 
     /**
@@ -87,9 +89,34 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
-        //
+      $request->validate([
+        'name'=>'',
+        'description'  => ''
+      ]);
+      $image = $category->image;
+
+      if($request->hasFile('image')){
+
+   
+        File::delete('categories/'.$category->image);
+         
+
+        $image = time().'-'.$request->title .'.'.$request->image->extension(); 
+
+        $request->image->move(public_path('categories'), $image);
+      
+      }
+
+      $category->update([
+        'name'=> $request->title,
+        'description' => $request->description,
+        'image' => $image
+      ]);
+
+      return to_route('admin.categories.index');
+
     }
 
     /**
@@ -98,8 +125,11 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        //
+        File::delete('categories/'.$category->image);
+
+        $category->delete();
+        return to_route('admin.categories.index');
     }
 }
