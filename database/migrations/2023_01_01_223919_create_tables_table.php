@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('guest_number');
-            $table->boolean('status')->default(1);
+            $table->string('status')->default('pending');
             $table->string('location');
             $table->timestamps();
         });

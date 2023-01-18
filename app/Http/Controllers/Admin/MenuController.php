@@ -5,6 +5,7 @@ use App\Http\Requests\MenuStoreRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Menu;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
@@ -26,8 +27,6 @@ class MenuController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-
-
     {
 
         $categories = Category::all();
@@ -83,9 +82,11 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Menu $menu)
     {
-        //
+        $categories = Category::all();
+ 
+        return view('admin.menus.edit',compact('menu','categories'));
     }
 
     /**
@@ -95,9 +96,39 @@ class MenuController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Menu $menu)
     {
-        //
+        $request->validate([
+            'name'=>'',
+            'description'  => '',
+            "price" =>''
+          ]);
+          $image = $menu->image;
+    
+          if($request->hasFile('image')){
+    
+       
+            File::delete('menus/'.$menu->image);
+             
+    
+            $image = time().'-'.$request->title .'.'.$request->image->extension(); 
+    
+            $request->image->move(public_path('menus'), $image);
+
+          
+          }
+    
+          $menu->update([
+            'name'=> $request->title,
+            'price' => $request->price,
+            'description' => $request->description,
+            'image' => $image
+          ]);
+
+          if($request->has('categories')){
+            $menu->categories()->sync($request->categories);
+          }
+          return to_route('admin.menus.index');
     }
 
     /**
